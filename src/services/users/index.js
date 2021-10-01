@@ -28,8 +28,7 @@ router
 .get(async(req, res, next) => {
     try {
         const data = await User.findOne({
-            where: { id: req.params.id },
-            include: Article,
+            where: { id: req.params.id }
           });
           if (data) {
             res.send(data);

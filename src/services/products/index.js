@@ -2,13 +2,13 @@ import express from "express"
 import db from "../../db/models/index.js"
 
 const router = express.Router()
-const {Product, Reviews} = db
+const {Product, Reviews, Category, Productcategories, Cart} = db
 
 router
 .route("/")
 .get(async(req, res, next) => {
     try {
-        const data = await Product.findAll({include: Reviews})
+        const data = await Product.findAll({include: [Reviews, {model: Category, through:{attributes:[]}}]})
         res.send(data)
     } catch (error) {
         console.log(error)
@@ -16,8 +16,16 @@ router
 })
 .post(async(req, res, next) => {
     try {
-        const data = await Product.create(req.body)
-        res.send(data)
+        
+            const  {categoryId, UserId, ...rest} = req.body
+            const product = await Product.create(rest);
+            const data = await Productcategories.create({categoryId, productId:product.id})
+            const userdata = await Cart.create({UserId, productId:product.id})
+      
+            res.send(data);
+        
+        // const data = await Product.create(req.body)
+        // res.send(data)
     } catch (error) {
         console.log(error)
     }
